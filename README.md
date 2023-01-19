@@ -1,3 +1,3 @@
 # Fintech545
-quantitative risk management
+quantitative risk management\n
 this will be repo for fintech545
