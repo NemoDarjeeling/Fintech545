@@ -72,3 +72,21 @@ By register(mle,:ll,6,myll;autodiff=true)
 
 4. **Results**: The estimated values for \( \beta \) are printed. It also calculates and prints the Ordinary Least Squares (OLS) estimates for comparison.
 Overall, the code showcases how to perform MLE for estimating parameters of a normal distribution and a regression model. It uses the Ipopt optimization library for the heavy lifting.
+
+
+The Autocorrelation Function (ACF) and the Partial Autocorrelation Function (PACF) are tools used in time series analysis to understand the correlation structure of a data series and to identify the appropriate models to fit it.
+### Autocorrelation Function (ACF):
+The ACF describes the correlation between a series and its lags. In other words, it helps to understand how a given observation is related to its previous observations. For example, if the original time series is denoted by \( X_t \), the ACF gives correlations between \( X_t \) and \( X_{t-k} \) for different values of \( k \).
+#### Interpretation:
+- If the ACF shows a slow decay, then a Moving Average (MA) model may be appropriate.
+- If the ACF cuts off after a certain point \( p \), it suggests an Autoregressive (AR) model of order \( p \).
+### Partial Autocorrelation Function (PACF):
+The PACF, on the other hand, describes the correlation between a series and its lags that is not explained by previous lags. For example, the partial autocorrelation at lag 2 would give the correlation between \( X_t \) and \( X_{t-2} \) that is not explained by \( X_{t-1} \).
+#### Interpretation:
+- If the PACF shows a sharp cut-off and/or tapers towards zero after a certain lag \( p \), this suggests that an AR model of order \( p \) should be used.
+- If the PACF decays more slowly, a MA model might be more appropriate.
+### How to Use ACF and PACF:
+1. **Identify AR Order**: Look at the PACF plot; the point where the PACF values become insignificant (usually at the confidence interval boundary) suggests the order of the AR model.
+2. **Identify MA Order**: Look at the ACF plot; the point where the ACF values fall within the confidence interval suggests the order of the MA model.
+3. **Mixed Models**: Sometimes both the ACF and PACF show a mixed pattern, suggesting that an ARIMA model (a mix of AR and MA) may be appropriate.
+These interpretations offer general guidelines and starting points; model identification should also include steps like fitting the model, checking its assumptions, and possibly refining the model based on those checks.
