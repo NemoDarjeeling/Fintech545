@@ -73,20 +73,32 @@ By register(mle,:ll,6,myll;autodiff=true)
 4. **Results**: The estimated values for \( \beta \) are printed. It also calculates and prints the Ordinary Least Squares (OLS) estimates for comparison.
 Overall, the code showcases how to perform MLE for estimating parameters of a normal distribution and a regression model. It uses the Ipopt optimization library for the heavy lifting.
 
+**How to count k?**
+In the context of model fitting, \( n \) is the number of observations, and \( k \) is the number of parameters being estimated. The term \( n-k \) often appears in the context of degrees of freedom for residuals in traditional OLS regression. It's calculated by subtracting the number of estimated parameters \( k \) from the total number of observations \( n \).
 
-The Autocorrelation Function (ACF) and the Partial Autocorrelation Function (PACF) are tools used in time series analysis to understand the correlation structure of a data series and to identify the appropriate models to fit it.
-### Autocorrelation Function (ACF):
-The ACF describes the correlation between a series and its lags. In other words, it helps to understand how a given observation is related to its previous observations. For example, if the original time series is denoted by \( X_t \), the ACF gives correlations between \( X_t \) and \( X_{t-k} \) for different values of \( k \).
-#### Interpretation:
-- If the ACF shows a slow decay, then a Moving Average (MA) model may be appropriate.
-- If the ACF cuts off after a certain point \( p \), it suggests an Autoregressive (AR) model of order \( p \).
-### Partial Autocorrelation Function (PACF):
-The PACF, on the other hand, describes the correlation between a series and its lags that is not explained by previous lags. For example, the partial autocorrelation at lag 2 would give the correlation between \( X_t \) and \( X_{t-2} \) that is not explained by \( X_{t-1} \).
-#### Interpretation:
-- If the PACF shows a sharp cut-off and/or tapers towards zero after a certain lag \( p \), this suggests that an AR model of order \( p \) should be used.
-- If the PACF decays more slowly, a MA model might be more appropriate.
-### How to Use ACF and PACF:
-1. **Identify AR Order**: Look at the PACF plot; the point where the PACF values become insignificant (usually at the confidence interval boundary) suggests the order of the AR model.
-2. **Identify MA Order**: Look at the ACF plot; the point where the ACF values fall within the confidence interval suggests the order of the MA model.
-3. **Mixed Models**: Sometimes both the ACF and PACF show a mixed pattern, suggesting that an ARIMA model (a mix of AR and MA) may be appropriate.
-These interpretations offer general guidelines and starting points; model identification should also include steps like fitting the model, checking its assumptions, and possibly refining the model based on those checks.
+### OLS under normal distribution:
+
+In a simple linear regression model \( y = \beta_0 + \beta_1x + \epsilon \) estimated using OLS:
+
+- \( n \) is the number of observations.
+- \( k \) is the number of estimated parameters, including the intercept (\( \beta_0 \)) and the slope (\( \beta_1 \)). So \( k=2 \) for simple linear regression.
+
+The degrees of freedom for residuals would be \( n-2 \).
+
+### MLE under normal distribution:
+
+In the same simple linear regression model estimated using MLE and assuming normally distributed errors:
+
+- \( n \) is the number of observations.
+- \( k \) would be 3 because, in addition to \( \beta_0 \) and \( \beta_1 \), you also estimate \( \sigma \), the standard deviation of the normally distributed error term.
+
+The concept of degrees of freedom for residuals (\( n-k \)) is less commonly used in the MLE context, but for AIC or BIC calculations, you would use \( k=3 \).
+
+### MLE under T-distribution:
+
+If you are estimating the same model but assuming that the errors follow a T-distribution, then you would additionally have to estimate the degrees of freedom (\( \nu \)) of the T-distribution. 
+
+- \( n \) remains the number of observations.
+- \( k \) would be 4 in this case: \( \beta_0 \), \( \beta_1 \), \( \sigma \), and \( \nu \).
+
+Again, the concept of degrees of freedom for residuals (\( n-k \)) is less commonly used in MLE, but for AIC or BIC calculations, you would use \( k=4 \).
