@@ -1,0 +1,4 @@
+"week3_assignment" is the folder to store all assignment related files.
+"week3_assignment.pdf" is the assignment report generated.
+"week3_code.ipynb" is the code written in python jupyter notebook. Configurations concerning jupyter notebook and installing of necessary libraries ("pip install ...") might be necessary before running the code. The code can be executed block by block.
+"README" is the README file to run the code and read the report.
