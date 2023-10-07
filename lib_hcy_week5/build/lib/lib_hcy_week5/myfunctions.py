@@ -14,22 +14,22 @@ def expo_weighted_cov(ret_data, w_lambda=0.94):
         weight[len(ret_data)-1-i]  = (1-w_lambda)*w_lambda**i # weight for each time point will be decided by lambda set
     weight = weight/sum(weight) # assure that sum_weight == 1
     adj_ret_means = ret_data - ret_data.mean()
-    expo_w_cov = adj_ret_means.T @ np.diag(weight) @ adj_ret_means # cov(x, x) = sum(wt * (xt - miux) * (xt - miux))
+    expo_w_cov = adj_ret_means.T.values @ np.diag(weight) @ adj_ret_means.values # cov(x, x) = sum(wt * (xt - miux) * (xt - miux))
     return expo_w_cov
 
 # covariance matrix obtained through exponential weight variance vector and exponential weight correlation matrix
 def cal_ew_var_ew_cor(ret_data, w_lambda=0.97):
-    ew_var_ew_cor = expo_weighted_cov(ret_data, w_lambda).values
+    ew_var_ew_cor = expo_weighted_cov(ret_data, w_lambda)
     return ew_var_ew_cor
 
 # covariance matrix obtained through pearson variance vector and pearson correlation matrix
-def ps_var_ps_cor(ret_data):
+def cal_ps_var_ps_cor(ret_data):
     ps_var_ps_cor = np.cov(ret_data.T)
     return ps_var_ps_cor
 
 # covariance matrix obtained through exponential weight variance vector and pearson correlation matrix
 def cal_ew_var_ps_cor(ret_data, w_lambda=0.97):
-    ew_cov = expo_weighted_cov(ret_data, w_lambda).values # get exponential weight covariance matrix
+    ew_cov = expo_weighted_cov(ret_data, w_lambda) # get exponential weight covariance matrix
     ew_var = np.diag(ew_cov) # extract exponential weight variance vector
     D_sqrt = np.diag(np.sqrt(ew_var)) # get D^1/2
     ps_cor = ret_data.corr()
@@ -181,6 +181,8 @@ def simu_from_cov(cov_mtx, num_samples, mean = None):
 
 # multivariate simulation - using PCA of which % variance explained as an input
 def pca_percent_explain(sort_eigenvalues, percent_explain):
+    if percent_explain ==1:
+        return len(sort_eigenvalues)
     n_eigenvalues = 0
     cum_var = np.cumsum(sort_eigenvalues) / np.sum(sort_eigenvalues) # returns an array with the variance explained by elements from 1st to 1st / 2nd / 3rd / 4th...
     for i in range(len(cum_var)):
@@ -253,9 +255,9 @@ def norm_VaR(returns, alpha=0.05, num_sample=1000):
         return var, Rt
 
 # the function to calculate Var based on normal dist with ew var
-def norm_ew_VaR(returns, alpha=0.05, num_sample=1000):
+def norm_ew_VaR(returns, alpha=0.05, num_sample=1000, w_lambda=0.94):
         mean = returns.mean()
-        std = np.sqrt(expo_weighted_cov(returns, w_lambda=0.94))
+        std = np.sqrt(expo_weighted_cov(returns, w_lambda))
         Rt = np.random.normal(mean, std, num_sample)
         var = calculate_VaR(Rt, alpha)
         return var, Rt
@@ -282,7 +284,7 @@ def ar1_VaR(returns, alpha=0.05, num_sample=1000):
     return var, Rt
 
 # calculating VaR using historical distribution
-def his_var(returns, alpha=0.05):
+def his_VaR(returns, alpha=0.05):
     Rt = returns.values # no further simulation, just obtain all data to get historical distribution
     var = calculate_VaR(Rt, alpha)
     return var, Rt
