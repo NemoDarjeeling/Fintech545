@@ -328,3 +328,6 @@ def cal_his_VaR(aPortfolio, prices, alpha=0.05, num_sample = 1000):
     var = calculate_VaR(simu_change, alpha)
     return var, simu_change
 
+# calculate ES
+def cal_ES(var, sim_data):
+  return -np.mean(sim_data[sim_data <= -var])
