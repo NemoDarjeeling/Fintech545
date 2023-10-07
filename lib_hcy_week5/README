@@ -1,0 +1,2 @@
+this is the library package for week5, trial 2;
+use "pip install --upgrade ./...../lib_hcy_week5" to upgrade the package for more recent changes, remember to restart the interpreter
