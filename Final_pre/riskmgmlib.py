@@ -11,7 +11,7 @@ from typing import List
 # 1. Covariance estimation techniques
 
 
-# Generating expoentially weighted weights
+# weight_gen() used for generating exponentially weighted weights
 def weight_gen(n, lambd=0.94):
     weight = np.zeros(n)
     for i in range(n):
@@ -19,18 +19,16 @@ def weight_gen(n, lambd=0.94):
     normalized_weight = weight / np.sum(weight)
     return normalized_weight
 
-
+# ewcov_gen() used for calculate the exponentially weighted covariance matrix, using the normalized_weight from weight_gen()
 def ewcov_gen(data, weight):
     data = data - data.mean(axis=0)
     weight = np.diag(weight)
     data_left = weight@data
     data_right = np.dot(data.T, data_left)
     return data_right
-# 2. Non PSD fixes for correlation matrices
-
-# chol_psd function, return the lower half matrix
 
 
+# cholesky decomposition, a component of later steps
 def chol_psd(a):
     n = a.shape[1]
     # Initialize the root matrix with 0 values
@@ -57,9 +55,8 @@ def chol_psd(a):
                 root[i, j] = (a[i, j] - s) * ir
     return root
 
-# fixing psd matrix
 
-
+# near_psd() used for normal way of fixing non-psd matrix
 def near_psd(a, epsilon=0.0):
     is_cov = False
     for i in np.diag(a):
@@ -83,25 +80,20 @@ def near_psd(a, epsilon=0.0):
         out = invSD @ out @ invSD
     return out
 
-# Implement Higham’s 2002 nearest psd correlation function
 
-
+# Higham_method() [including Forbenius_Norm(), projection_u(), projection_s()] used for Higham's method of fix non-psd matrix
 def Frobenius_Norm(a):
     return np.sqrt(np.sum(np.square(a)))
-
 
 def projection_u(a):
     np.fill_diagonal(a, 1.0)
     return a
 
 # A note here, epsilon is the smallest eigenvalue, 0 does not work well here, will still generate very small negativa values, so I set it to 1e-7
-
-
 def projection_s(a, epsilon=1e-7):
     vals, vecs = np.linalg.eigh(a)
     vals = np.array([max(i, epsilon) for i in vals])
     return vecs@np.diag(vals)@vecs.T
-
 
 def Higham_method(a, tol=1e-8):
     s = 0
@@ -119,38 +111,36 @@ def Higham_method(a, tol=1e-8):
         gamma = gamma_next
     return y
 
-# if a matrix is psd
 
-
+# is_psd() used to check whether a matrix is PSD or not
 def is_psd(matrix):
     eigenvalues = np.linalg.eigvals(matrix)
     return np.all(eigenvalues >= 0)
-# 3. Simulation Methods
 
 
+# sim_mvn_from_cov() used for multivariate simulation - directly from a covariance matrix, similar to the one below, just for normal dist
 def sim_mvn_from_cov(cov, num_of_simulation=25000):
     return chol_psd(cov) @ np.random.normal(size=(cov.shape[0], num_of_simulation))
 
 # variance matrix
 
-
+# var() used for calculate the variance if were given a covariance matrix
 def var(cov):
     return np.diag(cov)
-# Correlation matrix
 
 
+# corr() used for calculate the correlation matrix if were given a covariance matrix
 def corr(cov):
     return np.diag(1/np.sqrt(var(cov))) @ cov @ np.diag(1/np.sqrt(var(cov))).T
-# Covariance matrix
 
 
+# cov() used for calculate the covariance matrix if were given a correlation matrix and a list of the variance
 def cov(var, cor):
     std = np.sqrt(var)
     return np.diag(std) @ cor @ np.diag(std).T
 
 
-# using PCA with an optional parameter for % variance explained.
-# return the simulation result
+# PCA_with_percent() used for multivariate simulation - through PCA with an optional parameter for % variance explained
 def PCA_with_percent(cov, percent=0.95, num_of_simulation=25000):
     eigenvalue, eigenvector = np.linalg.eigh(cov)
     total = np.sum(eigenvalue)
@@ -167,7 +157,6 @@ def PCA_with_percent(cov, percent=0.95, num_of_simulation=25000):
     simulate = np.random.normal(size=(len(eigenvalue), num_of_simulation))
     return eigenvector @ np.diag(np.sqrt(eigenvalue)) @ simulate
 
-# direct simulation
 
 # direct_simulation() used for multivariate simulation - directly from a covariance matrix
 def direct_simulation(cov, n_samples=25000):
@@ -175,11 +164,11 @@ def direct_simulation(cov, n_samples=25000):
     r = scipy.random.randn(len(B[0]), n_samples)
     return B @ r
 
-# 4. VaR calculation methods
 
 # calculate_var used to given data and alpha, return the VaR
 def calculate_var(data, mean=0, alpha=0.05): # mean is the current expected return, so you should include actual mean if you assume 0 mean, or just subtract each data with mean
     return mean-np.quantile(data, alpha)
+
 
 # normal_var() used to calculate VaR when returns are fitted using normal distribution and then simulated
 def normal_var(data, mean=0, alpha=0.05, nsamples=10000):
@@ -187,6 +176,7 @@ def normal_var(data, mean=0, alpha=0.05, nsamples=10000):
     simulation_norm = np.random.normal(mean, sigma, nsamples)
     var_norm = calculate_var(simulation_norm, mean, alpha)
     return var_norm
+
 
 # ewcov_normal_var() used to calculate VaR when returns are fitted using normal distribution with ew var and then simulated
 def ewcov_normal_var(data, mean=0, alpha=0.05, nsamples=10000, lambd=0.94):
