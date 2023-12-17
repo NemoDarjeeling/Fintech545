@@ -8,8 +8,6 @@ from scipy.optimize import fsolve
 from scipy.optimize import minimize
 from typing import List
 
-# 1. Covariance estimation techniques
-
 
 # weight_gen() used for generating exponentially weighted weights
 def weight_gen(n, lambd=0.94):
